@@ -1,7 +1,7 @@
 
 # Task Manager (should be enhanced on error handling level at least by using try except)
 
-Steps to run the project using Docker:
+Steps to run the project using Docker, in the root directory run the following:
 
 * run `docker-compose build`
 * run `docker-compose up`
