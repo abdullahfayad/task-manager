@@ -1,0 +1,148 @@
+{% extends 'base.html' %} {% block content %}
+<div>
+  <div class="container mt-5">
+    <h2>Tasks</h2>
+    <div class="row">
+      {% for task in tasks %}
+      <div class="col-md-4">
+        <div class="card mb-4">
+          <div class="card-body">
+            <p class="card-text"><strong>Name:</strong> {{ task.name }}</p>
+            <p class="card-text">
+              <strong>Description:</strong> {{ task.description }}
+            </p>
+            <p class="card-text">
+              <strong>Priority:</strong> {{ task.priority.name }}
+            </p>
+            <p class="card-text">
+              <strong>Due Date:</strong> {{ task.due_date }}
+            </p>
+            <button
+              class="btn btn-primary edit-task"
+              data-task-id="{{ task.id }}"
+            >
+              Edit
+            </button>
+            <button
+              class="btn btn-danger delete-task"
+              data-task-id="{{ task.id }}"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <form id="task-form" method="post" class="mb-5">
+      <h4>Add/Update Task</h4>
+      <input type="hidden" name="task_id" id="task_id" />
+      <div class="mb-3">
+        <label for="name" class="form-label">Name</label>
+        <input
+          type="text"
+          class="form-control"
+          id="name"
+          name="name"
+          required
+        />
+      </div>
+      <div class="mb-3">
+        <label for="description" class="form-label">Description</label>
+        <input
+          type="text"
+          class="form-control"
+          id="description"
+          name="description"
+          required
+        />
+      </div>
+      <div class="mb-3">
+        <label for="priority" class="form-label">Priority</label>
+        <select class="form-control" id="priority" name="priority">
+          <option value="low">Low</option>
+          <option value="medium">Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+      <div class="mb-3">
+        <label for="due_date" class="form-label">Due Date</label>
+        <input
+          type="date"
+          class="form-control"
+          id="due_date"
+          name="due_date"
+          required
+        />
+      </div>
+      <button type="submit" class="btn btn-success">Save Task</button>
+    </form>
+  </div>
+
+  <script>
+    $(function () {
+      const accessToken = '{{ session["access_token"] }}';
+      console.log(accessToken);
+      $.ajaxSetup({
+        headers: { Authorization: "Bearer " + accessToken },
+      });
+
+      $(".edit-task").click(function () {
+        window.scrollTo({
+          top: document.body.scrollHeight,
+          behavior: "smooth",
+        });
+
+        const taskId = $(this).data("task-id");
+        $.getJSON(`/tasks/${taskId}`, function (task) {
+          $("#task_id").val(task.id);
+          $("#name").val(task.name);
+          $("#description").val(task.description);
+          $("#priority").val(task.priority);
+          $("#due_date").val(task.due_date);
+          $("#task-form").attr("action", `/tasks/update/${taskId}`);
+        });
+      });
+
+      $(".delete-task").click(function () {
+        const taskId = $(this).data("task-id");
+
+        if (confirm("Are you sure?")) {
+          $.ajax({
+            url: `/tasks/${taskId}`,
+            method: "DELETE",
+            success: function () {
+              window.location.reload();
+            },
+            error: function (response) {
+              alert("Delete Failed: " + response.responseText);
+            },
+          });
+        }
+      });
+
+      $("#task-form").submit(function (e) {
+        e.preventDefault();
+
+        const form = $(this);
+        const taskId = $("#task_id").val();
+        const url = taskId ? `/tasks/update/${taskId}` : "/tasks/";
+        const method = "POST";
+
+        $.ajax({
+          url: url,
+          type: method,
+          data: form.serialize(),
+          success: function () {
+            window.location.reload();
+          },
+          error: function (response) {
+            alert("Error: " + response.responseText);
+          },
+        });
+      });
+    });
+  </script>
+</div>
+{% endblock %}

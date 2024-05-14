@@ -1,0 +1,16 @@
+{% extends 'base.html' %} {% block content %}
+<div class="container mt-5">
+  <h1 class="text-center">Welcome to Task Manager</h1>
+  <p class="text-center mt-4">
+    Please
+    <a href="{{ url_for('auth.login_form') }}" class="btn btn-primary"
+      >log in</a
+    >
+    or
+    <a href="{{ url_for('auth.register_form') }}" class="btn btn-secondary"
+      >register</a
+    >
+    to get started.
+  </p>
+</div>
+{% endblock %}
